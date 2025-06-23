@@ -31,6 +31,7 @@ const TodoCard = ({ title, description, id, isCompleted }: TTodoCardProps) => {
       />
       <p className="font-semibold">{title}</p>
       {/* <p>Time</p> */}
+
       <div>
         {isCompleted ? (
           <p className="text-green-500">Done</p>
@@ -38,7 +39,9 @@ const TodoCard = ({ title, description, id, isCompleted }: TTodoCardProps) => {
           <p className="text-red-500">Pending</p>
         )}
       </div>
+
       <p>{description}</p>
+
       <div className="space-x-5">
         <Button className="bg-red-500">
           <Trash />
