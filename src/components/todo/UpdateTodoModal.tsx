@@ -1,4 +1,5 @@
-import { type FormEvent, useState } from "react";
+// components/modals/UpdateTodoModal.tsx
+import { useState, type FormEvent } from "react";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -9,6 +10,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
@@ -18,67 +21,69 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useUpdateTodoMutation } from "@/redux/api/api";
+import { SquarePen } from "lucide-react";
 
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { useAppDispatch, useAppSelector } from "@/redux/hook";
-import { addTodo } from "@/redux/features/todoSlice";
-import { useAddTodoMutation } from "@/redux/api/api";
+type TUpdateTodoModalProps = {
+  todo: {
+    _id: string;
+    title: string;
+    description: string;
+    priority: string;
+    isCompleted?: boolean;
+  };
+};
 
-const AddTodoModal = () => {
-  const [task, setTask] = useState("");
-  const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState("low");
-  //   for local state management
-  //   const dispatch = useAppDispatch();
+const UpdateTodoModal = ({ todo }: TUpdateTodoModalProps) => {
+  const [title, setTitle] = useState(todo.title);
+  const [description, setDescription] = useState(todo.description);
+  const [priority, setPriority] = useState(todo.priority);
 
-  const [addTodo, { data, isLoading, isError, error }] = useAddTodoMutation();
-  console.log({ data, isLoading, isError, error });
+  const [updateTodo] = useUpdateTodoMutation();
 
-  const onSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    // const randomString = Math.random().toString(36).substring(2, 7);
-
-    const taskDetails = {
-      //   id: randomString,
-      title: task,
-      description: description,
-      priority: priority,
-      isCompleted: false,
+    const updatedTask = {
+      title,
+      description,
+      priority,
+      isCompleted: todo.isCompleted || false,
     };
 
-    //   for local state management
-    // dispatch(addTodo(taskDetails));
+    const options = {
+      id: todo._id,
+      data: updatedTask,
+    };
 
-    // for server state management
-    addTodo(taskDetails);
+    updateTodo(options);
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="bg-primary-gradient text-xl font-semibold">
-          Add todo
+        <Button className="bg-[#5C53FE]">
+          <SquarePen />
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add task</DialogTitle>
+          <DialogTitle>Edit Task</DialogTitle>
           <DialogDescription>
-            Add your tasks that you want to finish.
+            Modify and update your task details.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={onSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="task" className="text-right">
-                Task
+              <Label htmlFor="title" className="text-right">
+                Title
               </Label>
               <Input
-                onBlur={(e) => setTask(e.target.value)}
-                id="task"
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 className="col-span-3"
               />
             </div>
@@ -88,8 +93,9 @@ const AddTodoModal = () => {
                 Description
               </Label>
               <Input
-                onBlur={(e) => setDescription(e.target.value)}
                 id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 className="col-span-3"
               />
             </div>
@@ -98,10 +104,12 @@ const AddTodoModal = () => {
               <Label htmlFor="priority" className="text-right">
                 Priority
               </Label>
-              {/* <div className="col-span-3"> */}
-              <Select onValueChange={(value) => setPriority(value)}>
+              <Select
+                value={priority}
+                onValueChange={(value) => setPriority(value)}
+              >
                 <SelectTrigger className="w-full col-span-3">
-                  <SelectValue placeholder="Priority" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -112,12 +120,11 @@ const AddTodoModal = () => {
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              {/* </div> */}
             </div>
           </div>
           <div className="flex justify-end">
             <DialogClose asChild>
-              <Button type="submit">Save changes</Button>
+              <Button type="submit">Update</Button>
             </DialogClose>
           </div>
         </form>
@@ -126,4 +133,4 @@ const AddTodoModal = () => {
   );
 };
 
-export default AddTodoModal;
+export default UpdateTodoModal;
